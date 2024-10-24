@@ -4,8 +4,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    # ports:
-    #  - "3000:3000"
+    volumes:
+      - .:/srv/node/app
+    ports:
+      #  - "3000:3000"
+      - "9229:9229"
     networks:
       - app-network
 

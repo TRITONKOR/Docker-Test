@@ -1,19 +1,39 @@
-const http = require('http');
+const Fastify = require("fastify");
+require("pino-pretty");
 
-const hostname = '0.0.0.0';
-const port = 3000;
+const { IS_DEV_ENV } = require("./config");
+const { patchRouting } = require("./routes");
 
-const server = http.createServer((req, res) => {
-    if (req.url == '/hello') {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'text/plain');
-        res.end('Hello World!\n');
-    } else {
-        res.statusCode = 404;
-        res.end('Not Found\n');
+const bootstrapFastify = () => {
+    const fastify = Fastify({
+        exposeHeadRoutes: false,
+        connectionTimeout: 20000,
+        ignoreTrailingSlash: false,
+        logger: !IS_DEV_ENV || {
+            level: "debug",
+            transport: {
+                target: "@mgcrea/pino-pretty-compact",
+                options: {
+                    colorize: true,
+                    translateTime: "HH:MM:ss Z",
+                    ignore: "pid,hostname",
+                },
+            },
+        },
+        disableRequestLogging: true,
+    });
+
+    patchRouting(fastify);
+
+    if (IS_DEV_ENV) {
+        fastify.register(require("@mgcrea/fastify-request-logger"), {});
+
+        fastify.ready(() => {
+            console.log(`\nAPI Structure\n${fastify.printRoutes()}`);
+        });
     }
-});
 
-server.listen(port, hostname, () => {
-    console.log(`Server running at http://${hostname}:${port}`);
-});
+    return fastify;
+};
+
+module.exports = { bootstrapFastify };
