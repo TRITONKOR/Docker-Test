@@ -1,11 +1,13 @@
-const { heroRepository } = require("../../repositories/hero.repo");
+const {
+    heroRepository,
+} = require("../../../infra/repositories/postgres/hero.repo");
 
 module.exports = {
     /**
      * @type {import('fastify').RouteOptions}
      */
     deleteHero: {
-        url: "/heroes/:id",
+        url: "/pg/heroes/:id",
         method: "DELETE",
         schema: {
             params: {

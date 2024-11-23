@@ -1,5 +1,6 @@
 const { echoRoute } = require("./echo");
-const { heroesRouter } = require("./heroes");
+const { heroesPostgresRouter } = require("./postgres/heroes");
+const { heroesMongoRouter } = require("./mongo/heroes");
 
 /**
  * Patch the routing of the Fastify instance
@@ -34,5 +35,6 @@ module.exports.patchRouting = (fastify) => {
  */
 const registerRoutes = (fastify) => {
     fastify.register(echoRoute);
-    fastify.register(heroesRouter);
+    fastify.register(heroesPostgresRouter);
+    fastify.register(heroesMongoRouter);
 };

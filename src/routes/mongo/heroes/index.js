@@ -4,7 +4,7 @@ const { createHero } = require("./createHero");
 const { updateHero } = require("./updateHero");
 const { deleteHero } = require("./deleteHero");
 
-module.exports.heroesRouter = async function (fastify, opts) {
+module.exports.heroesMongoRouter = async function (fastify, opts) {
     fastify.route(createHero);
     fastify.route(getHeroes);
     fastify.route(getHero);

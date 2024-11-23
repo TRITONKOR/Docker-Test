@@ -1,8 +1,9 @@
 const Fastify = require("fastify");
+
 require("pino-pretty");
 
 const { IS_DEV_ENV } = require("./config");
-const { patchRouting } = require("./routes");
+const { patchRouting } = require("./src/routes");
 
 const bootstrapFastify = () => {
     const fastify = Fastify({

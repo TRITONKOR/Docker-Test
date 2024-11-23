@@ -1,11 +1,13 @@
-const { heroRepository } = require("../../repositories/hero.repo");
+const {
+    heroRepository,
+} = require("../../../infra/repositories/mongo/hero.repo");
 
 module.exports = {
     /**
      * @type {import('fastify').RouteOptions}
      */
     getHeroes: {
-        url: "/heroes",
+        url: "/mongo/heroes",
         method: "GET",
         handler: async (request, reply) => {
             try {
@@ -13,7 +15,9 @@ module.exports = {
                 return reply.code(200).send(list);
             } catch (error) {
                 request.log.error(error);
-                return reply.code(500).send({ error: "Failed to fetch heroes" });
+                return reply
+                    .code(500)
+                    .send({ error: "Failed to fetch heroes" });
             }
         },
     },

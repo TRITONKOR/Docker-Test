@@ -1,11 +1,13 @@
-const { heroRepository } = require("../../repositories/hero.repo");
+const {
+    heroRepository,
+} = require("../../../infra/repositories/mongo/hero.repo");
 
 module.exports = {
     /**
      * @type {import('fastify').RouteOptions}
      */
     updateHero: {
-        url: "/heroes/:id",
+        url: "/mongo/heroes/:id",
         method: "PUT",
         bodyLimit: 1024,
         schema: {
@@ -31,7 +33,13 @@ module.exports = {
         handler: async (request, reply) => {
             try {
                 const targetId = request.params.id;
-                const { name, class: heroClass, level = 1, health = 100, mana = 50 } = request.body;
+                const {
+                    name,
+                    class: heroClass,
+                    level = 1,
+                    health = 100,
+                    mana = 50,
+                } = request.body;
                 const updated = await heroRepository.update(targetId, {
                     name,
                     class: heroClass,
