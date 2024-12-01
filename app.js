@@ -3,7 +3,8 @@ const Fastify = require("fastify");
 require("pino-pretty");
 
 const { IS_DEV_ENV } = require("./config");
-const { patchRouting } = require("./src/routes");
+const { patchRouting } = require("./src/presentation/routes");
+const { patchContext } = require("./src/presentation/context");
 
 const bootstrapFastify = () => {
     const fastify = Fastify({
@@ -23,6 +24,8 @@ const bootstrapFastify = () => {
         },
         disableRequestLogging: true,
     });
+
+    patchContext(fastify);
 
     patchRouting(fastify);
 

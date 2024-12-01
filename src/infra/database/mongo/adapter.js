@@ -101,6 +101,10 @@ class MongoDBAdapter {
         return new ObjectId();
     }
 
+    get $db() {
+        return this.#client.db(MONGO_DB);
+    }
+
     /**
      * Perform a health check to ensure MongoDB is connected
      * @returns {Promise<boolean>}
@@ -124,4 +128,4 @@ class MongoDBAdapter {
 const mongoDBAdapter = new MongoDBAdapter();
 Object.freeze(mongoDBAdapter);
 
-module.exports = { mongoDBAdapter };
+module.exports.mongoDBAdapter = mongoDBAdapter;

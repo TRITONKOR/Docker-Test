@@ -1,145 +1,128 @@
-const { mongoDBAdapter } = require("../../database/mongo/adapter");
+const { Hero } = require("../../../domain/entities/Hero");
+const {
+    mongoDBAdapter: { $db, asObjectId },
+} = require("./../../database/mongo/adapter");
 
+/**
+ * @implements {Repositories.IHeroRepository}
+ */
 class HeroRepository {
-    constructor(adapter) {
-        this.adapter = adapter;
-        this.collectionName = "hero";
-    }
+    #collection = $db.collection("heroes");
 
     /**
-     * Створити нового героя
-     * @param {HeroShape} data
-     * @returns {Promise<HeroInstance>}
+     * Fetches a hero by ID.
+     * @param {string} id
+     * @returns {Promise<Entities.Hero | null>}
      */
-    async create(data) {
-        if (!data.name || !data.class || !data.level) {
-            throw new Error("Відсутні необхідні поля");
-        }
-
-        const heroData = {
-            name: data.name,
-            class: data.class,
-            level: data.level,
-            health: data.health || 100,
-            mana: data.mana || 100,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        };
-
+    async getById(id) {
         try {
-            const collection = this.adapter.getCollection(this.collectionName);
-            const result = await collection.insertOne(heroData);
-            return { id: result.insertedId, ...heroData };
+            const hero = await this.#collection.findOne({
+                _id: asObjectId(id),
+            });
+
+            if (hero) {
+                const heroData = {
+                    id: hero._id.toString(),
+                    name: hero.name,
+                    superpower: hero.superpower,
+                    teamId: hero.teamId ? hero.teamId.toString() : null,
+                };
+
+                return new Hero(heroData);
+            }
+
+            return null;
         } catch (error) {
-            console.error("Error creating hero:", error);
+            console.error("Error fetching hero by ID:", error);
             throw error;
         }
     }
 
     /**
-     * Отримати героя або список героїв
-     * @param {string} [id]
-     * @returns {Promise<HeroInstance | HeroInstance[]>}
+     * Fetches all heroes.
+     * @returns {Promise<Entities.Hero[]>}
      */
-    async read(id) {
+    async getAll() {
         try {
-            const collection = this.adapter.getCollection(this.collectionName);
+            const heroes = await this.#collection.find({}).toArray();
 
-            if (id) {
-                const hero = await collection.findOne({
-                    _id: this.adapter.asObjectId(id),
-                });
-
-                if (!hero) {
-                    throw new Error(`Hero with ID ${id} not found`);
-                }
-
-                return { id: hero._id, ...hero };
-            } else {
-                const heroes = await collection.find({}).toArray();
-                return heroes.map((hero) => ({ id: hero._id, ...hero }));
-            }
+            return heroes.map(
+                (hero) =>
+                    new Hero({
+                        id: hero._id.toString(),
+                        name: hero.name,
+                        superpower: hero.superpower,
+                        teamId: hero.teamId ? hero.teamId.toString() : null,
+                    })
+            );
         } catch (error) {
-            console.error("Error fetching hero data:", error.message || error);
-            throw new Error("Failed to fetch hero data");
+            console.error("Error fetching all heroes:", error);
+            throw error;
         }
     }
 
     /**
-     * Оновити дані героя
-     * @param {string} id
-     * @param {Partial<HeroShape>} data
-     * @returns {Promise<HeroInstance>}
+     * Saves a new hero.
+     * @param {Entities.Hero} hero
+     * @returns {Promise<Entities.Hero>}
      */
-    async update(id, data) {
-        const filteredData = Object.fromEntries(
-            Object.entries(data).filter(([_, value]) => value !== undefined)
-        );
-
-        if (Object.keys(filteredData).length === 0) {
-            throw new Error("No valid fields provided for update");
-        }
-
+    async save(hero) {
         try {
-            const collection = this.adapter.getCollection(this.collectionName);
-            const result = await collection.findOneAndUpdate(
-                { _id: this.adapter.asObjectId(id) },
-                { $set: { ...filteredData, updatedAt: new Date() } },
-                { returnDocument: "after" }
+            const heroData = {
+                name: hero.name,
+                superpower: hero.superpower,
+                teamId: null,
+            };
+
+            const result = await this.#collection.insertOne(heroData);
+
+            return new Hero({ id: result.insertedId, ...heroData });
+        } catch (error) {
+            console.error("Error saving hero:", error);
+            throw error;
+        }
+    }
+
+    /**
+     * Updates an existing hero.
+     * @param {Entities.Hero} hero
+     * @returns {Promise<Entities.Hero>}
+     */
+    async update(hero) {
+        try {
+            const heroData = {
+                name: hero.name,
+                superpower: hero.superpower,
+                teamId: hero.teamId,
+            };
+
+            await this.#collection.updateOne(
+                { _id: asObjectId(hero.id) },
+                { $set: heroData }
             );
-            console.log("FindOneAndUpdate result:", result);
 
-            if (!result) {
-                throw new Error(`Hero with ID ${id} not found`);
-            }
-
-            return { id: result._id, ...result };
+            return new Hero({ ...hero, ...heroData });
         } catch (error) {
             console.error("Error updating hero:", error);
-            throw new Error("Failed to update hero");
+            throw error;
         }
     }
 
     /**
-     * Видалити героя
+     * Deletes a hero by ID.
      * @param {string} id
-     * @returns {Promise<{ deletedCount: number }>}
+     * @returns {Promise<void>}
      */
     async delete(id) {
         try {
-            const collection = this.adapter.getCollection(this.collectionName);
-            const result = await collection.deleteOne({
-                _id: this.adapter.asObjectId(id),
+            await this.#collection.deleteOne({
+                _id: asObjectId(id),
             });
-
-            if (result.deletedCount === 0) {
-                throw new Error(`Hero with ID ${id} not found`);
-            }
-
-            return { deletedCount: result.deletedCount };
         } catch (error) {
-            console.error("Error deleting hero:", error.message || error);
-            throw new Error("Failed to delete hero");
+            console.error("Error deleting hero:", error);
+            throw error;
         }
     }
 }
 
-module.exports.heroRepository = new HeroRepository(mongoDBAdapter);
-
-// Типи даних
-/**
- * @typedef {{
- *  name: string,
- *  class: string,
- *  level: number,
- *  health?: number,
- *  mana?: number,
- * }} HeroShape
- */
-/**
- * @typedef {HeroShape & {
- *  id: string,
- *  createdAt: Date,
- *  updatedAt: Date
- * }} HeroInstance
- */
+module.exports = { heroRepository: new HeroRepository() };
