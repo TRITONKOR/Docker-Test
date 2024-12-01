@@ -1,6 +1,7 @@
 const Fastify = require("fastify");
 const fastifySwagger = require("@fastify/swagger");
 const fastifySwaggerUi = require("@fastify/swagger-ui");
+const fastifyBasicAuth = require("@fastify/basic-auth");
 
 require("pino-pretty");
 
@@ -25,6 +26,16 @@ const bootstrapFastify = () => {
             },
         },
         disableRequestLogging: true,
+    });
+
+    fastify.register(fastifyBasicAuth, {
+        validate: async (username, password) => {
+            if (username === "admin" && password === "password") {
+                return true;
+            }
+            return false;
+        },
+        authenticate: true, // Вмикає аутентифікацію для кожного запиту
     });
 
     fastify.register(fastifySwagger, {
