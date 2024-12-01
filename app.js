@@ -1,4 +1,6 @@
 const Fastify = require("fastify");
+const fastifySwagger = require("@fastify/swagger");
+const fastifySwaggerUi = require("@fastify/swagger-ui");
 
 require("pino-pretty");
 
@@ -23,6 +25,29 @@ const bootstrapFastify = () => {
             },
         },
         disableRequestLogging: true,
+    });
+
+    fastify.register(fastifySwagger, {
+        swagger: {
+            info: {
+                title: "API Documentation",
+                description: "Automatically generated API documentation",
+                version: "1.0.0",
+            },
+            host: "localhost/api",
+            schemes: ["http"],
+            consumes: ["application/json"],
+            produces: ["application/json"],
+        },
+    });
+
+    fastify.register(fastifySwaggerUi, {
+        routePrefix: "/api-docs", //
+        staticCSP: true,
+        transformStaticCSP: (header) => header,
+        uiConfig: {
+            docExpansion: "full",
+        },
     });
 
     patchContext(fastify);

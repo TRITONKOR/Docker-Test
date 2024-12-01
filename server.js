@@ -18,8 +18,9 @@ const startServer = async () => {
 };
 
 const handleStartupError = (err) => {
+    console.log(err);
     if (fastify && fastify.log) {
-        fastify.log.error("Server failed to start:", err);
+        fastify.log.error("Server failed to start:", err.message);
     } else {
         console.error("Server failed to start. Error details:");
         console.error("Message:", err.message);
