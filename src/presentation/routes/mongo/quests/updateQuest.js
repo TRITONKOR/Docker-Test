@@ -10,23 +10,6 @@ module.exports = {
         url: "/mongo/quests/:id",
         method: "PUT",
         bodyLimit: 1024,
-        schema: {
-            params: {
-                type: "object",
-                properties: {
-                    id: { type: "string" },
-                },
-                required: ["id"],
-            },
-            body: {
-                type: "object",
-                required: ["title", "description"],
-                properties: {
-                    title: { type: "string" },
-                    description: { type: "string" },
-                },
-            },
-        },
         handler: async (request, reply) => {
             try {
                 const updateQuest = new UpdateQuestAction(
@@ -45,6 +28,62 @@ module.exports = {
                     .code(500)
                     .send({ error: "Failed to update quest" });
             }
+        },
+        schema: {
+            description: "Оновити квест за його ID",
+            tags: ["Quests"],
+            summary: "Оновлення даних квесту",
+            params: {
+                type: "object",
+                required: ["id"],
+                properties: {
+                    id: {
+                        type: "string",
+                        description: "ID квесту, який потрібно оновити",
+                    },
+                },
+            },
+            body: {
+                type: "object",
+                required: ["title", "description"],
+                properties: {
+                    title: {
+                        type: "string",
+                        description: "Назва квесту",
+                    },
+                    description: {
+                        type: "string",
+                        description: "Опис квесту",
+                    },
+                },
+            },
+            response: {
+                200: {
+                    description: "Квест успішно оновлено",
+                    type: "object",
+                    properties: {
+                        id: {
+                            type: "string",
+                            description: "ID оновленого квесту",
+                        },
+                        title: {
+                            type: "string",
+                            description: "Оновлена назва квесту",
+                        },
+                        description: {
+                            type: "string",
+                            description: "Оновлений опис квесту",
+                        },
+                    },
+                },
+                500: {
+                    description: "Внутрішня помилка сервера",
+                    type: "object",
+                    properties: {
+                        error: { type: "string" },
+                    },
+                },
+            },
         },
     },
 };

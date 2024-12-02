@@ -7,15 +7,6 @@ module.exports = {
     getHero: {
         url: "/mongo/heroes/:id",
         method: "GET",
-        schema: {
-            params: {
-                type: "object",
-                properties: {
-                    id: { type: "string" },
-                },
-                required: ["id"],
-            },
-        },
         handler: async (request, reply) => {
             try {
                 const getHero = new GetHeroAction(request.server.domainContext);
@@ -31,6 +22,50 @@ module.exports = {
                 request.log.error(error);
                 return reply.code(500).send({ error: "Failed to fetch hero" });
             }
+        },
+        schema: {
+            description: "Отримати героя за його ID",
+            tags: ["Heroes"],
+            summary: "Отримати героя",
+            params: {
+                type: "object",
+                required: ["id"],
+                properties: {
+                    id: {
+                        type: "string",
+                        description:
+                            "Унікальний ідентифікатор героя, який буде отримано",
+                    },
+                },
+            },
+            response: {
+                200: {
+                    description: "Дані героя успішно отримано",
+                    type: "object",
+                    properties: {
+                        id: { type: "string", description: "ID героя" },
+                        name: { type: "string", description: "Ім'я героя" },
+                        superpower: {
+                            type: "string",
+                            description: "Суперсила героя",
+                        },
+                    },
+                },
+                404: {
+                    description: "Героя не знайдено",
+                    type: "object",
+                    properties: {
+                        message: { type: "string" },
+                    },
+                },
+                500: {
+                    description: "Внутрішня помилка сервера",
+                    type: "object",
+                    properties: {
+                        error: { type: "string" },
+                    },
+                },
+            },
         },
     },
 };

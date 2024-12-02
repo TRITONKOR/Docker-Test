@@ -7,15 +7,6 @@ module.exports = {
     deleteHero: {
         url: "/mongo/heroes/:id",
         method: "DELETE",
-        schema: {
-            params: {
-                type: "object",
-                properties: {
-                    id: { type: "string" },
-                },
-                required: ["id"],
-            },
-        },
         handler: async (request, reply) => {
             try {
                 const deleteHero = new DeleteHeroAction(
@@ -28,6 +19,57 @@ module.exports = {
                 request.log.error(error);
                 return reply.code(500).send({ error: "Failed to delete hero" });
             }
+        },
+        schema: {
+            description: "Видалення героя за його ID",
+            tags: ["Heroes"],
+            summary: "Видалити героя",
+            params: {
+                type: "object",
+                required: ["id"],
+                properties: {
+                    id: {
+                        type: "string",
+                        description:
+                            "Унікальний ідентифікатор героя для видалення",
+                    },
+                },
+            },
+            response: {
+                200: {
+                    description: "Героя успішно видалено",
+                    type: "object",
+                    properties: {
+                        success: { type: "boolean" },
+                        message: {
+                            type: "string",
+                        },
+                    },
+                },
+                400: {
+                    description: "Помилка у запиті",
+                    type: "object",
+                    properties: {
+                        error: { type: "string" },
+                    },
+                },
+                404: {
+                    description: "Героя не знайдено",
+                    type: "object",
+                    properties: {
+                        error: { type: "string" },
+                    },
+                },
+                500: {
+                    description: "Внутрішня помилка сервера",
+                    type: "object",
+                    properties: {
+                        error: {
+                            type: "string",
+                        },
+                    },
+                },
+            },
         },
     },
 };

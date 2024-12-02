@@ -7,15 +7,6 @@ module.exports = {
     deleteTeam: {
         url: "/mongo/teams/:id",
         method: "DELETE",
-        schema: {
-            params: {
-                type: "object",
-                properties: {
-                    id: { type: "string" },
-                },
-                required: ["id"],
-            },
-        },
         handler: async (request, reply) => {
             try {
                 const deleteTeam = new DeleteTeamAction(
@@ -28,6 +19,47 @@ module.exports = {
                 request.log.error(error);
                 return reply.code(500).send({ error: "Failed to delete team" });
             }
+        },
+        schema: {
+            description: "Видаляє команду за її ID",
+            tags: ["Teams"],
+            summary: "Маршрут для видалення команди",
+            params: {
+                type: "object",
+                properties: {
+                    id: {
+                        type: "string",
+                        description: "ID команди, яку потрібно видалити",
+                    },
+                },
+                required: ["id"],
+            },
+            response: {
+                200: {
+                    description: "Команда успішно видалена",
+                    type: "object",
+                    properties: {
+                        message: {
+                            type: "string",
+                            description: "Повідомлення про успішне видалення",
+                        },
+                        id: {
+                            type: "string",
+                            description: "ID видаленої команди",
+                        },
+                    },
+                },
+                500: {
+                    description: "Внутрішня помилка сервера",
+                    type: "object",
+                    properties: {
+                        error: {
+                            type: "string",
+                            description: "Повідомлення про помилку",
+                        },
+                    },
+                },
+            },
         },
     },
 };

@@ -1,13 +1,11 @@
 const Fastify = require("fastify");
-const fastifySwagger = require("@fastify/swagger");
-const fastifySwaggerUi = require("@fastify/swagger-ui");
-const fastifyBasicAuth = require("@fastify/basic-auth");
 
 require("pino-pretty");
 
 const { IS_DEV_ENV } = require("./config");
 const { patchRouting } = require("./src/presentation/routes");
 const { patchContext } = require("./src/presentation/context");
+const { patchDocs } = require("./src/presentation/docs");
 
 const bootstrapFastify = () => {
     const fastify = Fastify({
@@ -28,38 +26,7 @@ const bootstrapFastify = () => {
         disableRequestLogging: true,
     });
 
-    fastify.register(fastifyBasicAuth, {
-        validate: async (username, password) => {
-            if (username === "admin" && password === "password") {
-                return true;
-            }
-            return false;
-        },
-        authenticate: true, // Вмикає аутентифікацію для кожного запиту
-    });
-
-    fastify.register(fastifySwagger, {
-        swagger: {
-            info: {
-                title: "API Documentation",
-                description: "Automatically generated API documentation",
-                version: "1.0.0",
-            },
-            host: "localhost/api",
-            schemes: ["http"],
-            consumes: ["application/json"],
-            produces: ["application/json"],
-        },
-    });
-
-    fastify.register(fastifySwaggerUi, {
-        routePrefix: "/api-docs", //
-        staticCSP: true,
-        transformStaticCSP: (header) => header,
-        uiConfig: {
-            docExpansion: "full",
-        },
-    });
+    patchDocs(fastify);
 
     patchContext(fastify);
 

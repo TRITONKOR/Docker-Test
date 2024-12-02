@@ -3,16 +3,6 @@ const { AddHeroAction } = require("../../../../app/actions/team/AddHero");
 module.exports.addHeroToTeam = {
     url: "/mongo/teams/:teamId/heroes/:heroId",
     method: "POST",
-    schema: {
-        params: {
-            type: "object",
-            properties: {
-                teamId: { type: "string" },
-                heroId: { type: "string" },
-            },
-            required: ["teamId", "heroId"],
-        },
-    },
     handler: async (request, reply) => {
         try {
             const { teamId, heroId } = request.params;
@@ -31,5 +21,65 @@ module.exports.addHeroToTeam = {
                 .code(500)
                 .send({ error: "Failed to add hero to team" });
         }
+    },
+    schema: {
+        description: "Додає героя до команди за їхніми ID",
+        tags: ["Teams", "Heroes"],
+        summary: "Маршрут для додавання героя до команди",
+        params: {
+            type: "object",
+            required: ["teamId", "heroId"],
+            properties: {
+                teamId: {
+                    type: "string",
+                    description: "ID команди, до якої потрібно додати героя",
+                },
+                heroId: {
+                    type: "string",
+                    description: "ID героя, якого потрібно додати до команди",
+                },
+            },
+        },
+        response: {
+            200: {
+                description: "Команду оновлено з доданим героєм",
+                type: "object",
+                properties: {
+                    id: { type: "string", description: "ID оновленої команди" },
+                    name: {
+                        type: "string",
+                        description: "Назва оновленої команди",
+                    },
+                    heroes: {
+                        type: "array",
+                        items: {
+                            type: "object",
+                            properties: {
+                                heroId: {
+                                    type: "string",
+                                    description: "ID героя",
+                                },
+                                name: {
+                                    type: "string",
+                                    description: "Ім'я героя",
+                                },
+                                superpower: {
+                                    type: "string",
+                                    description: "Суперсила героя",
+                                },
+                            },
+                        },
+                        description: "Список героїв у команді",
+                    },
+                },
+            },
+            500: {
+                description: "Внутрішня помилка сервера",
+                type: "object",
+                properties: {
+                    error: { type: "string" },
+                },
+            },
+        },
     },
 };

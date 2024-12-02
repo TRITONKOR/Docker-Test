@@ -21,5 +21,34 @@ module.exports = {
                     .send({ error: "Failed to fetch heroes" });
             }
         },
+        schema: {
+            description: "Отримати список всіх героїв",
+            tags: ["Heroes"],
+            summary: "Отримати список героїв",
+            response: {
+                200: {
+                    description: "Успішно отримано список героїв",
+                    type: "array",
+                    items: {
+                        type: "object",
+                        properties: {
+                            id: { type: "string", description: "ID героя" },
+                            name: { type: "string", description: "Ім'я героя" },
+                            superpower: {
+                                type: "string",
+                                description: "Суперсила героя",
+                            },
+                        },
+                    },
+                },
+                500: {
+                    description: "Внутрішня помилка сервера",
+                    type: "object",
+                    properties: {
+                        error: { type: "string" },
+                    },
+                },
+            },
+        },
     },
 };
