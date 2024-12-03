@@ -2,6 +2,7 @@ const { echoRoute } = require("./echo");
 const { heroesMongoRouter } = require("./mongo/heroes");
 const { teamsMongoRouter } = require("./mongo/teams");
 const { questsMongoRouter } = require("./mongo/quests");
+const { authRouter } = require("./auth/index");
 
 /**
  * Patch the routing of the Fastify instance
@@ -39,4 +40,5 @@ const registerRoutes = (fastify) => {
     fastify.register(heroesMongoRouter);
     fastify.register(teamsMongoRouter);
     fastify.register(questsMongoRouter);
+    fastify.register(authRouter);
 };

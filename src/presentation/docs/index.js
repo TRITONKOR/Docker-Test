@@ -15,6 +15,7 @@ module.exports.patchDocs = (fastify) => {
                 { name: "Heroes", description: "Hero related end-points" },
                 { name: "Teams", description: "Team related end-points" },
                 { name: "Quests", description: "Quest related end-points" },
+                { name: "Auth", description: "Auth related end-points" },
             ],
         },
     });
