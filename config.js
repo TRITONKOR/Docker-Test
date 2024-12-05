@@ -10,4 +10,6 @@ module.exports = {
     ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
     COOKIE_SECRET: process.env.COOKIE_SECRET,
+    REDIS_HOST: process.env.REDIS_HOST || "localhost",
+    REDIS_PORT: process.env.REDIS_PORT || 6379,
 };

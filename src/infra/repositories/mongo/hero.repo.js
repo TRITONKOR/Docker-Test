@@ -61,6 +61,29 @@ class HeroRepository {
         }
     }
 
+    async find(filters) {
+        const { term, limit = 10, offset = 0, sort = "releaseDate" } = filters;
+
+        const whereClause = term
+            ? { name: { $regex: term, $options: "i" } }
+            : {};
+
+        const heroesCursor = this.#collection
+            .find(whereClause)
+            .skip(offset)
+            .limit(limit)
+            .sort({ [sort]: -1 });
+
+        const heroes = await heroesCursor.toArray();
+        const total = await this.#collection.countDocuments(whereClause);
+
+        return {
+            items: heroes.map((hero) => new Hero(hero)),
+            page: Math.ceil(offset / limit) + 1,
+            total,
+        };
+    }
+
     /**
      * Saves a new hero.
      * @param {Entities.Hero} hero
